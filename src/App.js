@@ -5,7 +5,7 @@ import client from './client'
 import { SEARCH_REPOSITORIES } from './graphql'
 
 function App() {
-  const VARIABLES = {
+  const DEFAULT_STATE = {
     first: 5,
     after: null,
     last: null,
@@ -13,11 +13,22 @@ function App() {
     query: "フロントエンドエンジニア"
   }
 
-  const [variables, setVariables] = useState(VARIABLES)
+  const [variables, setVariables] = useState(DEFAULT_STATE)
   const { query, first, last, before, after } = variables
+  console.log({query})
+
+  const handleChange = event => {
+    const new_query = event.target.value
+    variables["query"] = new_query
+    const new_variables = Object.assign({}, variables)
+    setVariables(new_variables)
+  }
 
   return (
     <ApolloProvider client={client}>
+      <form>
+        <input value={query} onChange={handleChange} />
+      </form>
       <Query
         query={SEARCH_REPOSITORIES}
         variables={{ query, first, last, before, after }}

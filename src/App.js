@@ -43,7 +43,23 @@ function App() {
             const repositoryCount = search.repositoryCount
             const repositoryUnit = repositoryCount === 1 ? 'Repository' : 'Repositories'
             const title = `GitHub Repositories Search Results - ${repositoryCount} ${repositoryUnit}`
-            return <div>{title}</div>
+            return (
+              <>
+                <h2>{title}</h2>
+                <ul>
+                  {
+                    search.edges.map(edge => {
+                      const node = edge.node
+                      return (
+                        <li key={node.id}>
+                          <a href={node.url} target="_blank" rel="noreferrer">{node.name}</a>
+                        </li>
+                      )
+                    })
+                  }
+                </ul>
+              </>
+            )
           }
         }
       </Query>

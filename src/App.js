@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { ApolloProvider, Mutation, Query } from 'react-apollo'
 import client from './client'
-import { ADD_STAR, REMOVE_STAR,  SEARCH_REPOSITORIES } from './graphql'
+import { ADD_STAR, REMOVE_STAR, SEARCH_REPOSITORIES } from './graphql'
 
 function App() {
   const StarButton = props => {
-    const node = props.node
+    const { node, query, first, last, before, after } = props
     const totalCount = node.stargazers.totalCount
     const viewerHasStarred = node.viewerHasStarred
     const starCount = totalCount === 1 ? "1 star" : `${totalCount} stars`
@@ -24,7 +24,27 @@ function App() {
     }
 
     return (
-      <Mutation mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR}>
+      <Mutation
+        mutation={viewerHasStarred ? REMOVE_STAR : ADD_STAR}
+        // refetchQueriesはこのように関数形式で書いても良い
+        // 実行結果に基づいて何らかの処理をする場合は関数形式で記述する必要がある
+        refetchQueries={mutationResult => {
+          return [
+            {
+              query: SEARCH_REPOSITORIES,
+              variables: { query, first, last, before, after }
+            }
+          ]
+        }}
+        // refetchQueries={
+        //   [
+        //     {
+        //       query: SEARCH_REPOSITORIES,
+        //       variables: { query, first, last, before, after }
+        //     }
+        //   ]
+        // }
+      >
         {
           addOrRemoveStar => <StarStatus addOrRemoveStar={addOrRemoveStar} />
         }
@@ -101,7 +121,7 @@ function App() {
                         <li key={node.id}>
                           <a href={node.url} target="_blank" rel="noopener noreferrer">{node.name}</a>
                           &nbsp;
-                          <StarButton node={node} />
+                          <StarButton node={node} {...{query, first, last, before, after}} />
                         </li>
                       )
                     })
